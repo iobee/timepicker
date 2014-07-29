@@ -9,9 +9,11 @@ TimeInput = (function($) { // Localise the $ function
         }
         $.extend(this, TimeInput.DEFAULT_OPTS, opts);
         this.input = $(el);
+        this.bindMethodsToObj("show", "hide", "hideIfClickOutside");
         this.input.val(TimeInput.DEFAULT_OPTS.timeDefault);
         this.format = this.parseFormat(TimeInput.DEFAULT_OPTS.timeFormat);
         this.build();
+        this.hide();
     }
     TimeInput.DEFAULT_OPTS = {
         timeFormat : 'HH:mm', //set the time display format. 'HH:mm:ss', 'hh:mm:ss'
@@ -49,11 +51,11 @@ TimeInput = (function($) { // Localise the $ function
 
         show: function() {
             this.rootLayer.css("display", "block");
-            $([window, document.body]).click(this.hideIfClickOutSide);
+            $([window, document.body]).click(this.hideIfClickOutside);
             this.input.unbind("focus", this.show);
         },
 
-        hideIfClickOutSide: function(event) {
+        hideIfClickOutside: function(event) {
             if (event.target != this.input[0]) {
                 this.hide();
             }
@@ -61,7 +63,7 @@ TimeInput = (function($) { // Localise the $ function
 
         hide: function() {
             this.rootLayer.css("display", "none");
-            $([window, document.body]).unbind("click", this.hideIfClickOutSide);
+            $([window, document.body]).unbind("click", this.hideIfClickOutside);
             this.input.focus(this.show);
         },
 
@@ -89,6 +91,13 @@ TimeInput = (function($) { // Localise the $ function
         bindToObj: function(fn) {
             var self = this;
             return function() { return fn.apply(self, arguments) };
+        },
+
+        // See above
+        bindMethodsToObj: function() {
+            for (var i = 0; i < arguments.length; i++) {
+                this[arguments[i]] = this.bindToObj(this[arguments[i]]);
+            };
         },
 
         //解析日期格式
